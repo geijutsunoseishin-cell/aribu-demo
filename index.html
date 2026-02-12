@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aribu - Aprende Wayuunaiki</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fff;
+            color: #4b4b4b;
+        }
+
+        .aribu-red { color: #b91c1c; }
+        .aribu-orange { color: #f97316; }
+        .aribu-earth { color: #78350f; }
+
+        .btn-primary {
+            background-color: #b91c1c;
+            border-bottom: 4px solid #7f1d1d;
+            transition: all 0.1s;
+        }
+        .btn-primary:active {
+            border-bottom-width: 0;
+            transform: translateY(4px);
+        }
+
+        .lesson-node {
+            width: 80px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+        .lesson-node:hover:not(.locked) {
+            transform: scale(1.1);
+        }
+        .lesson-node.locked {
+            background-color: #e5e5e5 !important;
+            color: #afafaf !important;
+            border-bottom: 4px solid #afafaf;
+            cursor: not-allowed;
+        }
+        .lesson-node.completed {
+            background-color: #fbbf24;
+            border-bottom: 4px solid #d97706;
+            color: white;
+        }
+        .lesson-node.current {
+            background-color: #b91c1c;
+            border-bottom: 4px solid #7f1d1d;
+            color: white;
+        }
+
+        .progress-bar {
+            height: 16px;
+            background-color: #e5e5e5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #b91c1c;
+            transition: width 0.3s ease;
+        }
+
+        .exercise-card {
+            border: 2px solid #e5e5e5;
+            border-bottom: 4px solid #e5e5e5;
+            cursor: pointer;
+            background: white;
+        }
+        .exercise-card:hover {
+            background-color: #f9fafb;
+        }
+        .exercise-card.selected {
+            background-color: #fef2f2;
+            border-color: #f87171;
+            color: #b91c1c;
+        }
+
+        .owl-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 2px solid #e5e5e5;
+            border-radius: 15px;
+            padding: 15px;
+        }
+        .owl-bubble::after {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 20px;
+            border-width: 10px 10px 10px 0;
+            border-style: solid;
+            border-color: transparent #e5e5e5 transparent transparent;
+        }
+
+        .wayuu-pattern {
+            background-image: radial-gradient(#b91c1c 0.5px, transparent 0.5px), radial-gradient(#b91c1c 0.5px, #fff 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            opacity: 0.05;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 min-h-screen">
+    <div class="wayuu-pattern"></div>
+
+    <!-- Top Bar -->
+    <nav class="sticky top-0 bg-white border-b-2 border-gray-200 z-50">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-8">
+                <span class="text-2xl font-black aribu-red tracking-tight">ARIBU</span>
+            </div>
+            <div class="flex items-center space-x-6 font-bold">
+                <div class="flex items-center text-orange-600">
+                    <i class="fas fa-fire mr-2"></i> <span id="streak-val">1</span>
+                </div>
+                <div class="flex items-center text-red-600">
+                    <i class="fas fa-heart mr-2"></i> <span id="health-val">5</span>
+                </div>
+                <div class="flex items-center text-amber-500">
+                    <i class="fas fa-sun mr-2"></i> <span id="gems-val">50</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-4 flex flex-col items-center">
+        
+        <!-- App Views -->
+        <div id="path-view" class="w-full py-8 space-y-12">
+            <!-- Header Unit -->
+            <div class="w-full bg-stone-800 rounded-xl p-6 text-white mb-8 shadow-lg border-b-4 border-stone-900">
+                <h2 class="text-xl font-black uppercase opacity-70">Unidad 1: Wakuaitpa</h2>
+                <p class="text-2xl font-bold">Saludos y Cortesía</p>
+            </div>
+
+            <!-- The Path -->
+            <div id="levels-container" class="flex flex-col items-center space-y-12">
+                <!-- Nodes will be injected here -->
+            </div>
+        </div>
+
+        <!-- Lesson View (Hidden by default) -->
+        <div id="lesson-view" class="hidden w-full max-w-2xl py-8">
+            <div class="flex items-center space-x-4 mb-12">
+                <button onclick="exitLesson()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="progress-bar flex-grow">
+                    <div id="lesson-progress" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="exercise-content" class="space-y-8">
+                <!-- Exercise content injected here -->
+            </div>
+
+            <!-- Footer for Check -->
+            <div class="fixed bottom-0 left-0 w-full bg-white border-t-2 border-gray-200 p-6 z-50">
+                <div class="max-w-2xl mx-auto flex justify-between items-center">
+                    <div id="feedback-message" class="hidden font-bold text-xl"></div>
+                    <button id="check-btn" onclick="checkAnswer()" class="btn-primary text-white font-black px-12 py-3 rounded-xl uppercase tracking-wider w-full md:w-auto ml-auto">
+                        Comprobar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success/Failure Modals -->
+    <div id="result-overlay" class="hidden fixed inset-0 z-[100] flex items-end md:items-center justify-center p-4 bg-black bg-opacity-40">
+        <div id="result-card" class="w-full max-w-lg bg-white rounded-2xl p-8 transform transition-transform translate-y-full">
+            <div id="result-content" class="text-center"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const state = {
+            completedLessons: JSON.parse(localStorage.getItem('aribu_progress')) || [0],
+            streak: 1,
+            health: 5,
+            view: 'path'
+        };
+
+        const lessons = [
+            {
+                id: 0,
+                title: "Anasüatpa",
+                icon: "fa-hands-clapping",
+                exercises: [
+                    {
+                        type: "select",
+                        question: "¿Cómo se dice 'Hola' (¿Cómo estás?) en Wayuunaiki?",
+                        options: ["Antusu", "Jamaya", "Watutta"],
+                        answer: 1
+                    },
+                    {
+                        type: "translate",
+                        question: "Traduce esta frase:",
+                        phrase: "Bienvenido amigo",
+                        words: ["Antusu", "püchi", "tapañü", "anayaa", "kami", "maalia"],
+                        answer: "Antusu tapañü"
+                    }
+                ]
+            },
+            {
+                id: 1,
+                title: "Familia y Clan",
+                icon: "fa-users",
+                exercises: [
+                    {
+                        type: "select",
+                        question: "¿Qué significa la palabra 'Wayuu'?",
+                        options: ["Gente / Persona", "Desierto", "Tejedor"],
+                        answer: 0
+                    },
+                    {
+                        type: "select",
+                        question: "¿Cómo se dice 'Madre'?",
+                        options: ["Ma'a", "Iira", "Ei"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "La Tierra (Mma)",
+                icon: "fa-mountain-sun",
+                exercises: [
+                    {
+                        type: "select",
+                        question: "¿Cómo se le llama a la Madre Tierra en la cosmogonía Wayuu?",
+                        options: ["Mma", "Juya", "Püloi"],
+                        answer: 0
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Tejidos (Kanasü)",
+                icon: "fa-mitten",
+                exercises: [
+                    {
+                        type: "select",
+                        question: "¿Cuál es el nombre de los diseños geométricos en las mochilas?",
+                        options: ["Susu", "Kanasü", "Wuarat"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Sabiduría Ancestral",
+                icon: "fa-scroll",
+                exercises: [
+                    {
+                        type: "select",
+                        question: "¿Quién es el mediador encargado de resolver conflictos en la comunidad?",
+                        options: ["Pütchipü'ü", "Outsu", "Alaula"],
+                        answer: 0
+                    }
+                ]
+            }
+        ];
+
+        let activeLesson = null;
+        let currentExerciseIndex = 0;
+        let selectedOption = null;
+        let selectedWords = [];
+
+        function initPath() {
+            const container = document.getElementById('levels-container');
+            container.innerHTML = '';
+            
+            lessons.forEach((lesson, index) => {
+                const isCompleted = state.completedLessons.includes(index + 1);
+                const isUnlocked = state.completedLessons.includes(index);
+                const isCurrent = isUnlocked && !isCompleted;
+
+                const node = document.createElement('div');
+                node.className = `lesson-node ${!isUnlocked ? 'locked' : (isCompleted ? 'completed' : 'current')}`;
+                node.innerHTML = `<i class="fas ${lesson.icon} text-2xl"></i>`;
+                
+                const offset = Math.sin(index * 1.5) * 50;
+                node.style.marginLeft = `${offset}px`;
+
+                if (isUnlocked) {
+                    node.onclick = () => startLesson(index);
+                }
+
+                const label = document.createElement('div');
+                label.className = "absolute -bottom-10 font-black uppercase text-xs w-40 text-center text-stone-600";
+                label.innerText = lesson.title;
+                node.appendChild(label);
+
+                container.appendChild(node);
+            });
+
+            // Motivation
+            const duoBox = document.createElement('div');
+            duoBox.className = "flex items-center space-x-4 max-w-sm mt-16 pb-20";
+            duoBox.innerHTML = `
+                <div class="w-20 h-20 bg-red-700 rounded-full flex items-center justify-center text-white text-3xl shadow-xl">
+                    <i class="fas fa-dove"></i>
+                </div>
+                <div class="owl-bubble font-bold italic shadow-sm border-stone-200">
+                    "¡Jamaya! Aprender Wayuunaiki mantiene viva la cultura de nuestros ancestros."
+                </div>
+            `;
+            container.appendChild(duoBox);
+        }
+
+        function startLesson(index) {
+            activeLesson = lessons[index];
+            currentExerciseIndex = 0;
+            state.view = 'lesson';
+            document.getElementById('path-view').classList.add('hidden');
+            document.getElementById('lesson-view').classList.remove('hidden');
+            renderExercise();
+        }
+
+        function exitLesson() {
+            state.view = 'path';
+            document.getElementById('path-view').classList.remove('hidden');
+            document.getElementById('lesson-view').classList.add('hidden');
+            initPath();
+        }
+
+        function renderExercise() {
+            const ex = activeLesson.exercises[currentExerciseIndex];
+            const content = document.getElementById('exercise-content');
+            const progress = ((currentExerciseIndex) / activeLesson.exercises.length) * 100;
+            document.getElementById('lesson-progress').style.width = `${progress}%`;
+            
+            selectedOption = null;
+            selectedWords = [];
+            
+            let html = `<h2 class="text-3xl font-black mb-8 text-stone-800">${ex.question}</h2>`;
+
+            if (ex.type === 'select') {
+                html += `<div class="grid gap-4">`;
+                ex.options.forEach((opt, i) => {
+                    html += `
+                        <div onclick="selectOption(${i})" id="opt-${i}" class="exercise-card p-5 rounded-2xl font-bold text-xl flex items-center shadow-sm">
+                            <span class="w-10 h-10 border-2 rounded-xl flex items-center justify-center mr-4 text-sm bg-stone-50">${i + 1}</span>
+                            ${opt}
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            } else if (ex.type === 'translate') {
+                html += `
+                    <div class="mb-8 p-8 bg-stone-100 border-2 border-stone-200 rounded-3xl italic text-2xl text-stone-700">
+                        "${ex.phrase}"
+                    </div>
+                    <div id="answer-slots" class="min-h-[70px] border-b-2 border-stone-300 mb-8 flex flex-wrap gap-3 p-2"></div>
+                    <div id="word-bank" class="flex flex-wrap gap-3">
+                        ${ex.words.map((w, i) => `<button onclick="addWord('${w}', ${i})" id="word-${i}" class="exercise-card px-5 py-3 rounded-2xl font-bold text-lg shadow-sm">${w}</button>`).join('')}
+                    </div>
+                `;
+            }
+
+            content.innerHTML = html;
+            document.getElementById('check-btn').innerText = "Comprobar";
+            document.getElementById('check-btn').className = "btn-primary text-white font-black px-12 py-4 rounded-2xl uppercase tracking-wider w-full md:w-auto ml-auto opacity-50";
+        }
+
+        window.selectOption = (i) => {
+            selectedOption = i;
+            document.querySelectorAll('.exercise-card').forEach(el => el.classList.remove('selected'));
+            document.getElementById(`opt-${i}`).classList.add('selected');
+            document.getElementById('check-btn').classList.remove('opacity-50');
+        };
+
+        window.addWord = (word, i) => {
+            const btn = document.getElementById(`word-${i}`);
+            if (btn.classList.contains('invisible')) return;
+            
+            selectedWords.push({word, id: i});
+            btn.classList.add('invisible');
+            renderTranslateSlots();
+            document.getElementById('check-btn').classList.remove('opacity-50');
+        };
+
+        window.removeWord = (indexInSelected) => {
+            const item = selectedWords[indexInSelected];
+            document.getElementById(`word-${item.id}`).classList.remove('invisible');
+            selectedWords.splice(indexInSelected, 1);
+            renderTranslateSlots();
+            if (selectedWords.length === 0) document.getElementById('check-btn').classList.add('opacity-50');
+        };
+
+        function renderTranslateSlots() {
+            const container = document.getElementById('answer-slots');
+            container.innerHTML = selectedWords.map((w, i) => `
+                <button onclick="removeWord(${i})" class="exercise-card px-5 py-3 rounded-2xl font-bold bg-white shadow-sm border-stone-300">${w.word}</button>
+            `).join('');
+        }
+
+        window.checkAnswer = () => {
+            const ex = activeLesson.exercises[currentExerciseIndex];
+            if (selectedOption === null && selectedWords.length === 0) return;
+            
+            let isCorrect = false;
+
+            if (ex.type === 'select') {
+                isCorrect = selectedOption === ex.answer;
+            } else if (ex.type === 'translate') {
+                const userPhrase = selectedWords.map(w => w.word).join(' ');
+                isCorrect = userPhrase === ex.answer;
+            }
+
+            showResult(isCorrect);
+        };
+
+        function showResult(correct) {
+            const overlay = document.getElementById('result-overlay');
+            const card = document.getElementById('result-card');
+            const content = document.getElementById('result-content');
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => card.classList.remove('translate-y-full'), 10);
+
+            if (correct) {
+                card.className = "w-full max-w-lg bg-green-50 rounded-t-3xl md:rounded-3xl p-8 transform transition-transform";
+                content.innerHTML = `
+                    <div class="flex items-center text-green-700 mb-6">
+                        <i class="fas fa-star text-4xl mr-4 text-amber-500"></i>
+                        <h3 class="text-3xl font-black">¡Anasü! (¡Bien!)</h3>
+                    </div>
+                    <button onclick="nextExercise(true)" class="bg-green-600 border-b-4 border-green-800 w-full py-5 rounded-2xl text-white font-black uppercase text-xl">Continuar</button>
+                `;
+            } else {
+                state.health--;
+                document.getElementById('health-val').innerText = state.health;
+                card.className = "w-full max-w-lg bg-red-50 rounded-t-3xl md:rounded-3xl p-8 transform transition-transform";
+                content.innerHTML = `
+                    <div class="flex items-center text-red-700 mb-6">
+                        <i class="fas fa-circle-exclamation text-4xl mr-4"></i>
+                        <h3 class="text-3xl font-black">Sigue intentando</h3>
+                    </div>
+                    <p class="text-red-600 mb-8 font-bold text-lg">Perdiste un corazón. La perseverancia es ley en la Guajira.</p>
+                    <button onclick="nextExercise(false)" class="bg-red-600 border-b-4 border-red-800 w-full py-5 rounded-2xl text-white font-black uppercase text-xl">Entendido</button>
+                `;
+            }
+        }
+
+        window.nextExercise = (correct) => {
+            const overlay = document.getElementById('result-overlay');
+            const card = document.getElementById('result-card');
+            card.classList.add('translate-y-full');
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                
+                if (correct) {
+                    currentExerciseIndex++;
+                    if (currentExerciseIndex >= activeLesson.exercises.length) {
+                        completeLesson();
+                    } else {
+                        renderExercise();
+                    }
+                } else {
+                    if (state.health <= 0) {
+                        alert("¡Sin vidas! Descansa un poco y vuelve a intentarlo.");
+                        exitLesson();
+                        state.health = 5;
+                        document.getElementById('health-val').innerText = state.health;
+                    } else {
+                        renderExercise();
+                    }
+                }
+            }, 300);
+        }
+
+        function completeLesson() {
+            const nextIdx = activeLesson.id + 1;
+            if (!state.completedLessons.includes(nextIdx)) {
+                state.completedLessons.push(nextIdx);
+                localStorage.setItem('aribu_progress', JSON.stringify(state.completedLessons));
+            }
+            
+            document.getElementById('lesson-progress').style.width = `100%`;
+            
+            const content = document.getElementById('exercise-content');
+            content.innerHTML = `
+                <div class="text-center space-y-8 py-10">
+                    <div class="w-32 h-32 bg-amber-400 rounded-full mx-auto flex items-center justify-center text-white text-6xl shadow-xl border-4 border-white">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-stone-800 uppercase">¡Lección Lograda!</h2>
+                    <p class="text-xl font-bold text-stone-500">Has ganado sabiduría y 10 soles de la Guajira.</p>
+                    <div class="flex justify-center space-x-6">
+                        <div class="bg-red-600 text-white p-5 rounded-3xl font-black shadow-lg">
+                            <i class="fas fa-fire mr-2"></i> +1 DÍA
+                        </div>
+                        <div class="bg-amber-500 text-white p-5 rounded-3xl font-black shadow-lg">
+                            <i class="fas fa-sun mr-2"></i> +10
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('check-btn').innerText = "Regresar al Camino";
+            document.getElementById('check-btn').onclick = exitLesson;
+            document.getElementById('check-btn').classList.remove('opacity-50');
+        }
+
+        initPath();
+    </script>
+</body>
+</html>
