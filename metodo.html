@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Método | Aribu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800;900&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F5F5F3;
+            color: #111827;
+        }
+
+        /* Lógica de Flip Cards */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 350px;
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border: 3px solid #111827;
+            border-radius: 24px;
+            box-shadow: 6px 6px 0px 0px #111827;
+        }
+
+        .flip-card-front {
+            background-color: white;
+        }
+
+        .flip-card-back {
+            background-color: #fef2f2; /* Aribu Red Light */
+            transform: rotateY(180deg);
+        }
+
+        .wayuu-pattern {
+            background-image: radial-gradient(#b91c1c 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            opacity: 0.08;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .btn-back {
+            border: 2px solid #111827;
+            border-radius: 9999px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+        .btn-back:hover {
+            background-color: #111827;
+            color: white;
+            transform: translateX(-4px);
+        }
+    </style>
+</head>
+<body class="antialiased p-6">
+    <div class="wayuu-pattern"></div>
+
+    <nav class="max-w-6xl mx-auto mb-16 flex justify-between items-center">
+        <a href="landing.html" class="btn-back">
+            <i class="fas fa-arrow-left mr-2"></i> Volver
+        </a>
+        <div class="font-black text-2xl tracking-tight text-red-700">ARIBU METHOD</div>
+    </nav>
+
+    <header class="max-w-4xl mx-auto text-center mb-16">
+        <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-6">Ciencia aplicada a la <span class="text-red-600">tradición.</span></h1>
+        <p class="text-xl text-gray-600 font-bold">Combinamos algoritmos de aprendizaje con la cosmovisión Wayuu para una retención del 90%.</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        
+        <div class="flip-card">
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-fire text-4xl text-orange-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-black">Rachas</h3>
+                    <p class="mt-4 text-sm font-bold text-gray-500 uppercase">Pasa el mouse para saber más</p>
+                </div>
+                <div class="flip-card-back">
+                    <h3 class="text-xl font-black mb-4">Consistencia</h3>
+                    <p class="font-bold text-gray-700 leading-tight">
+                        Nuestro sistema de rachas premia la disciplina diaria. Aprender Wayuunaiki 5 minutos al día es más efectivo que 3 horas una vez por semana.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flip-card">
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-route text-4xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-black">El Camino</h3>
+                    <p class="mt-4 text-sm font-bold text-gray-500 uppercase">Pasa el mouse</p>
+                </div>
+                <div class="flip-card-back">
+                    <h3 class="text-xl font-black mb-4">Aprendizaje Lineal</h3>
+                    <p class="font-bold text-gray-700 leading-tight">
+                        Nodos diseñados pedagógicamente para llevarte de "Anasüatpa" (Hola) hasta la comprensión de los tejidos "Kanasü".
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flip-card">
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <div class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-heart text-4xl text-pink-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-black">Vidas</h3>
+                    <p class="mt-4 text-sm font-bold text-gray-500 uppercase">Pasa el mouse</p>
+                </div>
+                <div class="flip-card-back">
+                    <h3 class="text-xl font-black mb-4">Aprende del Error</h3>
+                    <p class="font-bold text-gray-700 leading-tight">
+                        Tienes 5 corazones. Si fallas, el sistema te recuerda que la perseverancia es ley en la Guajira. Las vidas se recuperan con el tiempo.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flip-card">
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-sun text-4xl text-amber-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-black">Soles</h3>
+                    <p class="mt-4 text-sm font-bold text-gray-500 uppercase">Pasa el mouse</p>
+                </div>
+                <div class="flip-card-back">
+                    <h3 class="text-xl font-black mb-4">Economía Cultural</h3>
+                    <p class="font-bold text-gray-700 leading-tight">
+                        Los "Soles" son la moneda de Aribu. Úsalos para desbloquear lecciones especiales sobre mitología y medicina ancestral.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-4xl mx-auto text-center py-10 border-t-2 border-gray-200">
+        <p class="font-black text-gray-400">© 2026 ARIBU - Preservando la lengua Wayuu</p>
+    </footer>
+</body>
+</html>
